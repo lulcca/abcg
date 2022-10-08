@@ -1,5 +1,5 @@
 #include "window.hpp"
-#include <iostream>
+#include <random>
 
 void Window::onCreate() {
   // Load font with bigger size
@@ -181,7 +181,9 @@ void Window::onPaintUI() {
 
 void Window::shuffleBoard() {
   // Shuffle the array
-  std::random_shuffle(m_board.begin(), m_board.end());
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(m_board.begin(), m_board.end(), g);
 
   // Start the game
   m_gameState = GameState::Play;
