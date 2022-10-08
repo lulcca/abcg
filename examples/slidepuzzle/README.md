@@ -21,4 +21,4 @@ Demo:
 
 <br />
 
-For more implementation and logic information, I recommend checking the comments in the file [examples/window.cpp](https://github.com/lulcca/abcg/blob/main/examples/slidepuzzle/window.cpp)
+For more implementation and logic information, I recommend checking the comments in the file [slidepuzzle/window.cpp](https://github.com/lulcca/abcg/blob/main/examples/slidepuzzle/window.cpp)
