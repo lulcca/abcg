@@ -211,7 +211,7 @@ void Window::drawGrid() {
       if (i < (-1 + m_unit) || j < (-1 + m_unit) || i > (1 - 2 * m_unit) || j > (1 - 2 * m_unit)) {
 
         // set color and position of the block
-        m_colors = {{{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}}};
+        m_colors = {{{0.05, 0.05, 0.05, 1}, {0.05, 0.05, 0.05, 1}, {0.05, 0.05, 0.05, 1}, {0.05, 0.05, 0.05, 1}}};
         m_positions = {{{i, j}, {(i + m_unit), j}, {i, (j + m_unit)}, {(i + m_unit), (j + m_unit)}}};
         setupModel();
         
