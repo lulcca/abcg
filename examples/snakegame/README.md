@@ -4,7 +4,15 @@
 
 <br />
 
-The <strong>[Snake Game](https://lulcca.github.io/abcg/snakegame/)</strong> is a game whose objective is to eat the apples, without hitting the border or yourself. You must eat 12 apples to win!
+The <strong>[Snake Game](https://lulcca.github.io/abcg/snakegame/)</strong> is a game whose objective is to eat the apples, without hitting the border or yourself.
+
+<br />
+
+To win, you must eat 7 apples! You can control the snake with keyboard `arrows` or `wasd`.
+
+<br />
+
+[snake-game_demo.webm](https://user-images.githubusercontent.com/56274210/199039677-45c355f4-c42a-4f9d-8f08-a1b732b35e9f.webm)
 
 <br />
 
