@@ -83,39 +83,10 @@ vec2 SphericalMapping(vec3 P) {
 
 void main() {
   vec4 color;
-
-  if (mappingMode == 0) {
-    // Triplanar mapping
-
-    // Sample with x planar mapping
-    vec2 texCoord1 = PlanarMappingX(fragPObj);
-    vec4 color1 = BlinnPhong(fragN, fragL, fragV, texCoord1);
-
-    // Sample with y planar mapping
-    vec2 texCoord2 = PlanarMappingY(fragPObj);
-    vec4 color2 = BlinnPhong(fragN, fragL, fragV, texCoord2);
-
-    // Sample with z planar mapping
-    vec2 texCoord3 = PlanarMappingZ(fragPObj);
-    vec4 color3 = BlinnPhong(fragN, fragL, fragV, texCoord3);
-
-    // Compute average based on normal
-    vec3 weight = abs(normalize(fragNObj));
-    color = color1 * weight.x + color2 * weight.y + color3 * weight.z;
-  } else {
-    vec2 texCoord;
-    if (mappingMode == 1) {
-      // Cylindrical mapping
-      texCoord = CylindricalMapping(fragPObj);
-    } else if (mappingMode == 2) {
-      // Spherical mapping
-      texCoord = SphericalMapping(fragPObj);
-    } else if (mappingMode == 3) {
-      // From mesh
-      texCoord = fragTexCoord;
-    }
-    color = BlinnPhong(fragN, fragL, fragV, texCoord);
-  }
+  vec2 texCoord;
+  // From mesh
+  texCoord = fragTexCoord;
+  color = BlinnPhong(fragN, fragL, fragV, texCoord);
 
   if (gl_FrontFacing) {
     outColor = color;

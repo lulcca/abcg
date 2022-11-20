@@ -90,7 +90,6 @@ void Model::loadObj(std::string_view path, bool standardize) {
   m_indices.clear();
 
   m_hasNormals = false;
-  m_hasTexCoords = false;
 
   std::unordered_map<Vertex, GLuint> hash{};
 
@@ -113,14 +112,11 @@ void Model::loadObj(std::string_view path, bool standardize) {
       // Texture coordinates
       glm::vec2 texCoord{};
       if (index.texcoord_index >= 0) {
-        m_hasTexCoords = true;
         auto const texCoordsStartIndex{2 * index.texcoord_index};
-        texCoord = {attrib.texcoords.at(texCoordsStartIndex + 0),
-                    attrib.texcoords.at(texCoordsStartIndex + 1)};
+        texCoord = {attrib.texcoords.at(texCoordsStartIndex + 0), attrib.texcoords.at(texCoordsStartIndex + 1)};
       }
 
-      Vertex const vertex{
-          .position = position, .normal = normal, .texCoord = texCoord};
+      Vertex const vertex{.position = position, .normal = normal, .texCoord = texCoord};
 
       if (!hash.contains(vertex)) {
         hash[vertex] = m_vertices.size();
