@@ -1,3 +1,1 @@
-add_subdirectory(helloworld)
-add_subdirectory(slidepuzzle)
-add_subdirectory(snakegame)
+add_subdirectory(earth)
