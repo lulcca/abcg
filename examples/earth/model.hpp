@@ -6,12 +6,14 @@
 struct Vertex {
   glm::vec3 position{};
   glm::vec3 normal{};
+  glm::vec2 texCoord{};
 
   friend bool operator==(Vertex const &, Vertex const &) = default;
 };
 
 class Model {
 public:
+  void loadDiffuseTexture(std::string_view path);
   void loadObj(std::string_view path, bool standardize = true);
   void render(int numTriangles = -1) const;
   void setupVAO(GLuint program);
@@ -35,11 +37,13 @@ private:
   glm::vec4 m_Kd{};
   glm::vec4 m_Ks{};
   float m_shininess{};
+  GLuint m_diffuseTexture{};
 
   std::vector<Vertex> m_vertices;
   std::vector<GLuint> m_indices;
 
   bool m_hasNormals{false};
+  bool m_hasTexCoords{false};
 
   void computeNormals();
   void createBuffers();

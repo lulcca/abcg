@@ -40,6 +40,8 @@ private:
   glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
   glm::vec4 m_Ks{1.0f};
   float m_shininess{25.0f};
+
+  void loadModel(std::string_view path);
 };
 
 #endif

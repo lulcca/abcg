@@ -38,11 +38,27 @@ void Window::onCreate() {
   auto const program{ abcg::createOpenGLProgram({{.source = assetsPath + "earth.vert", .stage = abcg::ShaderStage::Vertex}, {.source = assetsPath + "earth.frag", .stage = abcg::ShaderStage::Fragment}})};
   m_programs.push_back(program);
 
-  // Load model
-  m_model.loadObj(assetsPath + "earth.obj");
-  m_model.setupVAO(m_programs.at(m_currentProgramIndex));
+  // Load default model
+  loadModel(assetsPath + "earth.obj");
 
   m_trianglesToDraw = m_model.getNumTriangles();
+}
+
+void Window::loadModel(std::string_view path) {
+  auto const assetsPath{abcg::Application::getAssetsPath()};
+
+  m_model.destroy();
+
+  m_model.loadDiffuseTexture(assetsPath + "earth.png");
+  m_model.loadObj(path);
+  m_model.setupVAO(m_programs.at(m_currentProgramIndex));
+  m_trianglesToDraw = m_model.getNumTriangles();
+
+  // Use material properties from the loaded model
+  m_Ka = m_model.getKa();
+  m_Kd = m_model.getKd();
+  m_Ks = m_model.getKs();
+  m_shininess = m_model.getShininess();
 }
 
 void Window::onUpdate() {
