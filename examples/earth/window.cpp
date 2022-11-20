@@ -1,244 +1,119 @@
 #include "window.hpp"
 
-#include <glm/gtx/fast_trigonometry.hpp>
-#include <unordered_map>
+#include "imfilebrowser.h"
 
-// Explicit specialization of std::hash for Vertex
-template <> struct std::hash<Vertex> {
-  size_t operator()(Vertex const &vertex) const noexcept {
-    auto const h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
+void Window::onEvent(SDL_Event const &event) {
+  glm::ivec2 mousePosition;
+  SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+  if (event.type == SDL_MOUSEMOTION) {
+    m_trackBallModel.mouseMove(mousePosition);
+    m_trackBallLight.mouseMove(mousePosition);
   }
-};
+  if (event.type == SDL_MOUSEBUTTONDOWN) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      m_trackBallModel.mousePress(mousePosition);
+    }
+    if (event.button.button == SDL_BUTTON_RIGHT) {
+      m_trackBallLight.mousePress(mousePosition);
+    }
+  }
+  if (event.type == SDL_MOUSEBUTTONUP) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      m_trackBallModel.mouseRelease(mousePosition);
+    }
+    if (event.button.button == SDL_BUTTON_RIGHT) {
+      m_trackBallLight.mouseRelease(mousePosition);
+    }
+  }
+  if (event.type == SDL_MOUSEWHEEL) {
+    m_zoom += (event.wheel.y > 0 ? -1.0f : 1.0f) / 5.0f;
+    m_zoom = glm::clamp(m_zoom, -1.5f, 1.0f);
+  }
+}
 
 void Window::onCreate() {
-  auto const &assetsPath{abcg::Application::getAssetsPath()};
+  auto const assetsPath{abcg::Application::getAssetsPath()};
 
   abcg::glClearColor(0, 0, 0, 1);
-
-  // Enable depth buffering
   abcg::glEnable(GL_DEPTH_TEST);
-
-  // Create program
-  m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "earth.vert",
-                                  .stage = abcg::ShaderStage::Vertex},
-                                 {.source = assetsPath + "earth.frag",
-                                  .stage = abcg::ShaderStage::Fragment}});
+  auto const program{ abcg::createOpenGLProgram({{.source = assetsPath + "earth.vert", .stage = abcg::ShaderStage::Vertex}, {.source = assetsPath + "earth.frag", .stage = abcg::ShaderStage::Fragment}})};
+  m_programs.push_back(program);
 
   // Load model
-  loadModelFromFile(assetsPath + "earth.obj");
-  standardize();
+  m_model.loadObj(assetsPath + "earth.obj");
+  m_model.setupVAO(m_programs.at(m_currentProgramIndex));
 
-  m_verticesToDraw = m_indices.size();
-
-  // Generate VBO
-  abcg::glGenBuffers(1, &m_VBO);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  abcg::glBufferData(GL_ARRAY_BUFFER,
-                     sizeof(m_vertices.at(0)) * m_vertices.size(),
-                     m_vertices.data(), GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // Generate EBO
-  abcg::glGenBuffers(1, &m_EBO);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     sizeof(m_indices.at(0)) * m_indices.size(),
-                     m_indices.data(), GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  // Create VAO
-  abcg::glGenVertexArrays(1, &m_VAO);
-
-  // Bind vertex attributes to current VAO
-  abcg::glBindVertexArray(m_VAO);
-
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  auto const positionAttribute{
-      abcg::glGetAttribLocation(m_program, "inPosition")};
-  abcg::glEnableVertexAttribArray(positionAttribute);
-  abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(Vertex), nullptr);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-
-  // End of binding to current VAO
-  abcg::glBindVertexArray(0);
+  m_trianglesToDraw = m_model.getNumTriangles();
 }
 
-void Window::loadModelFromFile(std::string_view path) {
-  tinyobj::ObjReader reader;
-
-  if (!reader.ParseFromFile(path.data())) {
-    if (!reader.Error().empty()) {
-      throw abcg::RuntimeError(
-          fmt::format("Failed to load model {} ({})", path, reader.Error()));
-    }
-    throw abcg::RuntimeError(fmt::format("Failed to load model {}", path));
-  }
-
-  if (!reader.Warning().empty()) {
-    fmt::print("Warning: {}\n", reader.Warning());
-  }
-
-  auto const &attributes{reader.GetAttrib()};
-  auto const &shapes{reader.GetShapes()};
-
-  m_vertices.clear();
-  m_indices.clear();
-
-  // A key:value map with key=Vertex and value=index
-  std::unordered_map<Vertex, GLuint> hash{};
-
-  // Loop over shapes
-  for (auto const &shape : shapes) {
-    // Loop over indices
-    for (auto const offset : iter::range(shape.mesh.indices.size())) {
-      // Access to vertex
-      auto const index{shape.mesh.indices.at(offset)};
-
-      // Vertex position
-      auto const startIndex{3 * index.vertex_index};
-      auto const vx{attributes.vertices.at(startIndex + 0)};
-      auto const vy{attributes.vertices.at(startIndex + 1)};
-      auto const vz{attributes.vertices.at(startIndex + 2)};
-
-      Vertex const vertex{.position = {vx, vy, vz}};
-
-      // If map doesn't contain this vertex
-      if (!hash.contains(vertex)) {
-        // Add this index (size of m_vertices)
-        hash[vertex] = m_vertices.size();
-        // Add this vertex
-        m_vertices.push_back(vertex);
-      }
-
-      m_indices.push_back(hash[vertex]);
-    }
-  }
-}
-
-void Window::standardize() {
-  // Center to origin and normalize bounds to [-1, 1]
-
-  // Get bounds
-  glm::vec3 max(std::numeric_limits<float>::lowest());
-  glm::vec3 min(std::numeric_limits<float>::max());
-  for (auto const &vertex : m_vertices) {
-    max = glm::max(max, vertex.position);
-    min = glm::min(min, vertex.position);
-  }
-
-  // Center and scale
-  auto const center{(min + max) / 2.0f};
-  auto const scaling{2.0f / glm::length(max - min)};
-  for (auto &vertex : m_vertices) {
-    vertex.position = (vertex.position - center) * scaling;
-  }
+void Window::onUpdate() {
+  m_modelMatrix = m_trackBallModel.getRotation();
+  m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f + m_zoom), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Window::onPaint() {
-  // Animate angle by 15 degrees per second
-  auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
-  m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
-
-  // Clear color buffer and depth buffer
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
+  abcg::glEnable(GL_CULL_FACE);
+  abcg::glFrontFace(GL_CCW);
+  auto const aspect{gsl::narrow<float>(m_viewportSize.x) / gsl::narrow<float>(m_viewportSize.y)};
+  m_projMatrix =  glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
 
-  abcg::glUseProgram(m_program);
-  abcg::glBindVertexArray(m_VAO);
+  // Use currently selected program
+  auto const program{m_programs.at(m_currentProgramIndex)};
+  abcg::glUseProgram(program);
 
-  // Update uniform variable
-  auto const angleLocation{abcg::glGetUniformLocation(m_program, "angle")};
-  abcg::glUniform1f(angleLocation, m_angle);
+  // Get location of uniform variables
+  auto const viewMatrixLoc{abcg::glGetUniformLocation(program, "viewMatrix")};
+  auto const projMatrixLoc{abcg::glGetUniformLocation(program, "projMatrix")};
+  auto const modelMatrixLoc{abcg::glGetUniformLocation(program, "modelMatrix")};
+  auto const normalMatrixLoc{abcg::glGetUniformLocation(program, "normalMatrix")};
+  auto const lightDirLoc{abcg::glGetUniformLocation(program, "lightDirWorldSpace")};
+  auto const shininessLoc{abcg::glGetUniformLocation(program, "shininess")};
+  auto const IaLoc{abcg::glGetUniformLocation(program, "Ia")};
+  auto const IdLoc{abcg::glGetUniformLocation(program, "Id")};
+  auto const IsLoc{abcg::glGetUniformLocation(program, "Is")};
+  auto const KaLoc{abcg::glGetUniformLocation(program, "Ka")};
+  auto const KdLoc{abcg::glGetUniformLocation(program, "Kd")};
+  auto const KsLoc{abcg::glGetUniformLocation(program, "Ks")};
 
-  // Draw triangles
-  abcg::glDrawElements(GL_TRIANGLES, m_verticesToDraw, GL_UNSIGNED_INT,
-                       nullptr);
+  // Set uniform variables that have the same value for every model
+  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
+  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
 
-  abcg::glBindVertexArray(0);
+  auto const lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
+  abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
+
+  // Set uniform variables for the current model
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
+
+  auto const modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix)};
+  auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  m_model.render(m_trianglesToDraw);
+
   abcg::glUseProgram(0);
 }
 
-void Window::onPaintUI() {
-  abcg::OpenGLWindow::onPaintUI();
-
-  // Create window for slider
-  {
-    ImGui::SetNextWindowPos(ImVec2(5, m_viewportSize.y - 94));
-    ImGui::SetNextWindowSize(ImVec2(m_viewportSize.x - 10, -1));
-    ImGui::Begin("Slider window", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    // Create a slider to control the number of rendered triangles
-    {
-      // Slider will fill the space of the window
-      ImGui::PushItemWidth(m_viewportSize.x - 25);
-
-      static auto n{m_verticesToDraw / 3};
-      ImGui::SliderInt(" ", &n, 0, m_indices.size() / 3, "%d triangles");
-      m_verticesToDraw = n * 3;
-
-      ImGui::PopItemWidth();
-    }
-
-    ImGui::End();
-  }
-
-  // Create a window for the other widgets
-  {
-    auto const widgetSize{ImVec2(172, 62)};
-    ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5, 5));
-    ImGui::SetNextWindowSize(widgetSize);
-    ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    static bool faceCulling{};
-    ImGui::Checkbox("Back-face culling", &faceCulling);
-
-    if (faceCulling) {
-      abcg::glEnable(GL_CULL_FACE);
-    } else {
-      abcg::glDisable(GL_CULL_FACE);
-    }
-
-    // CW/CCW combo box
-    {
-      static std::size_t currentIndex{};
-      std::vector<std::string> const comboItems{"CW", "CCW"};
-
-      ImGui::PushItemWidth(70);
-      if (ImGui::BeginCombo("Front face",
-                            comboItems.at(currentIndex).c_str())) {
-        for (auto const index : iter::range(comboItems.size())) {
-          auto const isSelected{currentIndex == index};
-          if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-            currentIndex = index;
-          if (isSelected)
-            ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-
-      if (currentIndex == 0) {
-        abcg::glFrontFace(GL_CW);
-      } else {
-        abcg::glFrontFace(GL_CCW);
-      }
-    }
-
-    ImGui::End();
-  }
+void Window::onResize(glm::ivec2 const &size) {
+  m_viewportSize = size;
+  m_trackBallModel.resizeViewport(size);
+  m_trackBallLight.resizeViewport(size);
 }
 
-void Window::onResize(glm::ivec2 const &size) { m_viewportSize = size; }
-
 void Window::onDestroy() {
-  abcg::glDeleteProgram(m_program);
-  abcg::glDeleteBuffers(1, &m_EBO);
-  abcg::glDeleteBuffers(1, &m_VBO);
-  abcg::glDeleteVertexArrays(1, &m_VAO);
+  m_model.destroy();
+  for (auto const &program : m_programs) {
+    abcg::glDeleteProgram(program);
+  }
 }
