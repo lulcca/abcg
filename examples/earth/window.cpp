@@ -1,7 +1,5 @@
 #include "window.hpp"
 
-#include "imfilebrowser.h"
-
 void Window::onEvent(SDL_Event const &event) {
   glm::ivec2 mousePosition;
   SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
