@@ -3,11 +3,13 @@
 #include <filesystem>
 #include <unordered_map>
 
+// Explicit specialization of std::hash for Vertex
 template <> struct std::hash<Vertex> {
   size_t operator()(Vertex const &vertex) const noexcept {
     auto const h1{std::hash<glm::vec3>()(vertex.position)};
     auto const h2{std::hash<glm::vec3>()(vertex.normal)};
-    return abcg::hashCombine(h1, h2);
+    auto const h3{std::hash<glm::vec2>()(vertex.texCoord)};
+    return abcg::hashCombine(h1, h2, h3);
   }
 };
 
@@ -201,6 +203,16 @@ void Model::setupVAO(GLuint program) {
     abcg::glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE,  sizeof(Vertex), reinterpret_cast<void *>(offset));
   }
 
+  auto const texCoordAttribute{
+    abcg::glGetAttribLocation(program, "inTexCoord")};
+  if (texCoordAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(texCoordAttribute);
+    auto const offset{offsetof(Vertex, texCoord)};
+    abcg::glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE,
+                                sizeof(Vertex),
+                                reinterpret_cast<void *>(offset));
+  }
+
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindVertexArray(0);
 }
@@ -221,6 +233,7 @@ void Model::standardize() {
 }
 
 void Model::destroy() const {
+  abcg::glDeleteTextures(1, &m_diffuseTexture);
   abcg::glDeleteBuffers(1, &m_EBO);
   abcg::glDeleteBuffers(1, &m_VBO);
   abcg::glDeleteVertexArrays(1, &m_VAO);

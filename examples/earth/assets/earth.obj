@@ -1,7 +1,8 @@
 # Blender v2.83.1 OBJ File: 'Low Poly Earth.blend'
 # www.blender.org
-mtllib Low Poly Earth.mtl
-o Sphere_Sphere.002
+
+mtllib earth.mtl
+
 v -0.636116 -0.331086 0.699904
 v -0.715765 -0.065742 0.697120
 v -0.441811 -0.708001 0.556528
@@ -6635,7 +6636,10 @@ vn 0.8610 0.3036 0.4080
 vn 0.2022 0.3987 0.8945
 vn -0.0937 0.2164 -0.9718
 vn 0.7040 0.3152 -0.6365
-s off
+
+o earth
+g earth
+usemtl earth
 f 1/1/1 12/2/1 7/3/1
 f 38/4/2 92/5/2 82/6/2
 f 117/7/3 130/8/3 146/9/3
