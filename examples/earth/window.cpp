@@ -21,9 +21,9 @@ void Window::onCreate() {
 
   // Create program
   m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "loadmodel.vert",
+      abcg::createOpenGLProgram({{.source = assetsPath + "earth.vert",
                                   .stage = abcg::ShaderStage::Vertex},
-                                 {.source = assetsPath + "loadmodel.frag",
+                                 {.source = assetsPath + "earth.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
   // Load model

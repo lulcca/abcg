@@ -6,9 +6,13 @@ int main(int argc, char **argv) {
 
     Window window;
     window.setOpenGLSettings({.samples = 4});
-    window.setWindowSettings({.width = 600, .height = 600, .title = "Earth",});
+    window.setWindowSettings({
+        .width = 600,
+        .height = 600,
+        .title = "Load Model",
+    });
+
     app.run(window);
-    
   } catch (std::exception const &exception) {
     fmt::print(stderr, "{}\n", exception.what());
     return -1;
