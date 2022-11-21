@@ -15,7 +15,7 @@ class Model {
 public:
   void loadDiffuseTexture(std::string_view path);
   void loadObj(std::string_view path, bool standardize = true);
-  void render(int numTriangles = -1) const;
+  void render() const;
   void setupVAO(GLuint program);
   void destroy() const;
 
@@ -41,8 +41,6 @@ private:
 
   std::vector<Vertex> m_vertices;
   std::vector<GLuint> m_indices;
-
-  bool m_hasNormals{false};
 
   void computeNormals();
   void createBuffers();

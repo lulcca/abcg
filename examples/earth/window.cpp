@@ -89,7 +89,7 @@ void Window::onPaint() {
   auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  m_model.render(m_trianglesToDraw);
+  m_model.render();
 
   abcg::glUseProgram(0);
 }
