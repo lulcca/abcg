@@ -3,7 +3,6 @@
 
 #include "abcgOpenGL.hpp"
 #include "model.hpp"
-#include "trackball.hpp"
 
 class Window : public abcg::OpenGLWindow {
 protected:
@@ -20,16 +19,17 @@ private:
   Model m_model;
   int m_trianglesToDraw{};
 
-  TrackBall m_trackBallModel;
-  TrackBall m_trackBallLight;
   float m_zoom{};
 
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
+  float m_angle{};
+  GLuint m_program;
+  glm::vec3 m_axis{200.0f};
+  glm::mat4 m_rotation{1.0f};
 
-  std::vector<GLuint> m_programs;
-  int m_currentProgramIndex{};
+  abcg::Timer m_lastTime{};
 
   // Light and material properties
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};

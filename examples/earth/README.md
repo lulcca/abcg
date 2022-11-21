@@ -5,7 +5,7 @@
 
 <br />
 
-The <strong>earth</strong> can be accessed [here](https://lulcca.github.io/abcg/earth/), you can control it with your mouse.
+The <strong>earth</strong> can be accessed [here](https://lulcca.github.io/abcg/earth/), you can zoom it with your mouse.
 
 <br />
 

@@ -19,10 +19,6 @@ uniform float shininess;
 // Diffuse texture sampler
 uniform sampler2D diffuseTex;
 
-// Mapping mode
-// 0: triplanar; 1: cylindrical; 2: spherical; 3: from mesh
-uniform int mappingMode;
-
 out vec4 outColor;
 
 // Blinn-Phong reflection model
@@ -52,46 +48,9 @@ vec4 BlinnPhong(vec3 N, vec3 L, vec3 V, vec2 texCoord) {
   return ambientColor + diffuseColor + specularColor;
 }
 
-// Planar mapping
-vec2 PlanarMappingX(vec3 P) { return vec2(1.0 - P.z, P.y); }
-vec2 PlanarMappingY(vec3 P) { return vec2(P.x, 1.0 - P.z); }
-vec2 PlanarMappingZ(vec3 P) { return P.xy; }
-
-#define PI 3.14159265358979323846
-
-// Cylindrical mapping
-vec2 CylindricalMapping(vec3 P) {
-  float longitude = atan(P.x, P.z);
-  float height = P.y;
-
-  float u = longitude / (2.0 * PI) + 0.5;  // From [-pi, pi] to [0, 1]
-  float v = height - 0.5;                  // Base at y = -0.5
-
-  return vec2(u, v);
-}
-
-// Spherical mapping
-vec2 SphericalMapping(vec3 P) {
-  float longitude = atan(P.x, P.z);
-  float latitude = asin(P.y / length(P));
-
-  float u = longitude / (2.0 * PI) + 0.5;  // From [-pi, pi] to [0, 1]
-  float v = latitude / PI + 0.5;           // From [-pi/2, pi/2] to [0, 1]
-
-  return vec2(u, v);
-}
-
 void main() {
   vec4 color;
   vec2 texCoord;
-  // From mesh
   texCoord = fragTexCoord;
-  color = BlinnPhong(fragN, fragL, fragV, texCoord);
-
-  if (gl_FrontFacing) {
-    outColor = color;
-  } else {
-    float i = (color.r + color.g + color.b) / 3.0;
-    outColor = vec4(i, 0, 0, 1.0);
-  }
+  outColor = BlinnPhong(fragN, fragL, fragV, texCoord);
 }
