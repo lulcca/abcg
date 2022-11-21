@@ -15,4 +15,4 @@ Credits:
 
 <br />
 
-For more implementation and logic information, I recommend checking the files [earth/window.cpp](https://github.com/lulcca/abcg/blob/main/examples/slidepuzzle/window.cpp) and [earth/model.cpp](https://github.com/lulcca/abcg/blob/main/examples/slidepuzzle/window.cpp)
+For more implementation and logic information, I recommend checking the files [earth/window.cpp](https://github.com/lulcca/abcg/blob/main/examples/earth/window.cpp) and [earth/model.cpp](https://github.com/lulcca/abcg/blob/main/examples/earth/model.cpp)
