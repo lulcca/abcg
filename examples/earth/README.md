@@ -5,11 +5,13 @@
 
 <br />
 
-The <strong>earth model</strong> can be accessed [here](https://lulcca.github.io/abcg/earth/). You can control it with your mouse.
+The <strong>earth</strong> can be accessed [here](https://lulcca.github.io/abcg/earth/), you can control it with your mouse.
 
 <br />
 
-Earth model is from [Hlushka Vitaliy](https://www.turbosquid.com/pt_br/3d-models/3d-planet-earth-model-1553478). Image used for texture is from [NASA](https://svs.gsfc.nasa.gov/3404).
+Credits: 
+- <i>model is from [Hlushka Vitaliy](https://www.turbosquid.com/pt_br/3d-models/3d-planet-earth-model-1553478)</i>
+- <i>image used for texture is from [NASA](https://svs.gsfc.nasa.gov/3404)</i>
 
 <br />
 
