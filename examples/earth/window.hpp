@@ -3,6 +3,7 @@
 
 #include "abcgOpenGL.hpp"
 #include "model.hpp"
+#include <string>
 
 class Window : public abcg::OpenGLWindow {
 protected:
@@ -17,19 +18,20 @@ private:
   glm::ivec2 m_viewportSize{};
 
   Model m_model;
-  int m_trianglesToDraw{};
-
+  GLuint m_program;
+  
+  float m_angle{};
   float m_zoom{};
 
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
-  float m_angle{};
-  GLuint m_program;
+ 
   glm::vec3 m_axis{200.0f};
   glm::mat4 m_rotation{1.0f};
 
   abcg::Timer m_lastTime{};
+  std::string m_assetsPath;
 
   // Light and material properties
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};

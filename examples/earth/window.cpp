@@ -2,30 +2,43 @@
 #include <glm/gtx/fast_trigonometry.hpp>
 
 void Window::onEvent(SDL_Event const &event) {
+  // mouse events
   if (event.type == SDL_MOUSEWHEEL) {
+    // zoom in or zoom out after scroll
     m_zoom += (event.wheel.y > 0 ? -1.0f : 1.0f) / 5.0f;
     m_zoom = glm::clamp(m_zoom, -1.5f, 1.0f);
   }
 }
 
 void Window::onCreate() {
-  auto const assetsPath{abcg::Application::getAssetsPath()};
+  // set assets path
+  m_assetsPath = abcg::Application::getAssetsPath();
+
+  // clear window
   abcg::glClearColor(0, 0, 0, 1);
+
+  // enable depth buffering
   abcg::glEnable(GL_DEPTH_TEST);
-  m_program = abcg::createOpenGLProgram({{.source = assetsPath + "earth.vert", .stage = abcg::ShaderStage::Vertex}, {.source = assetsPath + "earth.frag", .stage = abcg::ShaderStage::Fragment}});
-  loadModel(assetsPath + "earth.obj");
-  m_trianglesToDraw = m_model.getNumTriangles();
+
+  // create an OpenGl program using earth.vert and earth.frag
+  m_program = abcg::createOpenGLProgram({{.source = m_assetsPath + "earth.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "earth.frag", .stage = abcg::ShaderStage::Fragment}});
+  
+  // load model using earth.obj
+  loadModel(m_assetsPath + "earth.obj");
 }
 
 void Window::loadModel(std::string_view path) {
-  auto const assetsPath{abcg::Application::getAssetsPath()};
+  // call destroy method to release opengl resources that were allocated during application
   m_model.destroy();
-  m_model.loadDiffuseTexture(assetsPath + "earth.jpg");
+
+  // load texture (earth.jpg)
+  m_model.loadDiffuseTexture(m_assetsPath + "earth.jpg");
+
+  // load object (earth.obj)
   m_model.loadObj(path);
   m_model.setupVAO(m_program);
-  m_trianglesToDraw = m_model.getNumTriangles();
 
-  // Use material properties from the loaded model
+  // use material properties from the loaded model
   m_Ka = m_model.getKa();
   m_Kd = m_model.getKd();
   m_Ks = m_model.getKs();
@@ -34,23 +47,35 @@ void Window::loadModel(std::string_view path) {
 
 void Window::onUpdate() {
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
+
+  // m_angle is incremented by 5 radians and current deltaTime
   m_angle = glm::wrapAngle(m_angle + glm::radians(5.0f) * deltaTime);
-  m_modelMatrix = glm::rotate(glm::mat4(1.0f), m_angle, m_axis) * m_rotation; 
+
+  // Compute model matrix of the earth using m_angle, m_axis and m_rotation
+  m_modelMatrix = glm::rotate(glm::mat4(1.0f), m_angle, m_axis) * m_rotation;
+
+  // Compute view matrix of the earth using m_zoom
   m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f + m_zoom), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Window::onPaint() {
+  // clear window
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // set viewport with m_viewportSize value
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
+
+  // enable face culling
   abcg::glEnable(GL_CULL_FACE);
+
+  // indicate that the front side has counterclockwise vertices
   abcg::glFrontFace(GL_CCW);
 
+  // set m_projMatrix as perspective projection 
   auto const aspect{gsl::narrow<float>(m_viewportSize.x) / gsl::narrow<float>(m_viewportSize.y)};
   m_projMatrix = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
 
-  abcg::glUseProgram(m_program);
-
-  // Get location of uniform variables
+  // get location of uniform variables
   auto const viewMatrixLoc{abcg::glGetUniformLocation(m_program, "viewMatrix")};
   auto const projMatrixLoc{abcg::glGetUniformLocation(m_program, "projMatrix")};
   auto const modelMatrixLoc{abcg::glGetUniformLocation(m_program, "modelMatrix")};
@@ -66,7 +91,7 @@ void Window::onPaint() {
   auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
   auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
 
-  // Set uniform variables that have the same value for every model
+  // set uniform variables that have the same value for every model
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniform1i(diffuseTexLoc, 0);
@@ -78,7 +103,7 @@ void Window::onPaint() {
   abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
   abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
 
-  // Set uniform variables for the current model
+  // set uniform variables for the current model
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
   abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
@@ -89,16 +114,20 @@ void Window::onPaint() {
   auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
+  // rendering the model
   m_model.render();
 
-  abcg::glUseProgram(0);
+  // activate shaders
+  abcg::glUseProgram(m_program);
 }
 
 void Window::onResize(glm::ivec2 const &size) {
+  // set viewport based on window size
   m_viewportSize = size;
 }
 
 void Window::onDestroy() {
+  // release opengl resources that were allocated during application
   m_model.destroy();
   abcg::glDeleteProgram(m_program);
 }
