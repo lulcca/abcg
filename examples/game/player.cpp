@@ -26,7 +26,7 @@ void Player::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
 
 	glBindVertexArray(m_VAO);
   glBindTexture(GL_TEXTURE_2D, m_texture);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
   glBindVertexArray(0);
   glUseProgram(0);
 }
@@ -46,11 +46,50 @@ void Player::destroy(){
 
 void Player::setVAO() {
 
-   float v[] = {
-    -0.5f, -0.5f, 0.0f, 0, 0,
-     0.5f, -0.5f, 0.0f, 1, 0,
-     0.0f,  0.5f, 0.0f, 0.5, 1,
-  };
+    float v[] = {
+        // Back face
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,        
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
+        // Front face
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
+        // Left face
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
+        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
+        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
+        // Right face
+         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,     
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
+         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   
+        // Bottom face
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
+        // Top face
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  
+	};
 
   unsigned int VBO;
 	glGenVertexArrays(1, &m_VAO);
