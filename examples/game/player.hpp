@@ -2,11 +2,12 @@
 #define PLAYER_HPP_
 
 #include "abcgOpenGL.hpp"
+#include <glm/glm.hpp>
 
 class Player {
 public:
   void create(GLuint program);
-  void paint();
+  void paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation);
   void destroy();
  
 private:

@@ -1,12 +1,34 @@
 #include "player.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-void Player::paint() {
-	abcg::glUseProgram(m_program);
+
+void Player::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
+	
+  glm::mat4 projection = glm::perspective(glm::radians(45.f), 1280.f/720.f, 0.1f, 100.0f);
+  glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0,0,-3));
+  glm::mat4 model = glm::mat4(1.0f);
+  model = glm::translate(model, pos);
+  model = glm::scale(model, scale);
+  model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1,0,0));
+  model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0,1,0));
+  model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0,0,1));
+
+  glUseProgram(m_program);
+  auto const viewMatrixLoc{glGetUniformLocation(m_program, "proj")};
+  auto const projMatrixLoc{glGetUniformLocation(m_program, "view")};
+  auto const modelMatrixLoc{glGetUniformLocation(m_program, "model")};
+
+  glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(projection));
+  glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 	glBindVertexArray(m_VAO);
   glBindTexture(GL_TEXTURE_2D, m_texture);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
   glBindVertexArray(0);
-  abcg::glUseProgram(0);
+  glUseProgram(0);
 }
 
 void Player::create(GLuint program) {
@@ -16,10 +38,10 @@ void Player::create(GLuint program) {
 }
 
 void Player::destroy(){
-  abcg::glDeleteProgram(m_program);
-  abcg::glDeleteBuffers(1, &m_VBOPositions);
-  abcg::glDeleteBuffers(1, &m_VBOColors);
-  abcg::glDeleteVertexArrays(1, &m_VAO);
+  glDeleteProgram(m_program);
+  glDeleteBuffers(1, &m_VBOPositions);
+  glDeleteBuffers(1, &m_VBOColors);
+  glDeleteVertexArrays(1, &m_VAO);
 }
 
 void Player::setVAO() {
@@ -47,10 +69,10 @@ void Player::loadTexture(){
   
   GLuint data = abcg::loadOpenGLTexture({.path = m_assetsPath + "./texture/wall.jpg"});
   if(data){
-    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_texture = data;
   }
 }

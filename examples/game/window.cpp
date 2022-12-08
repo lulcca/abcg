@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include <glm/glm.hpp>
 
 void Window::onEvent(SDL_Event const &event) {
   //mantive apenas os eventos que vamos usar 
@@ -27,11 +28,12 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
+  auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-
+  fmt::print("{}\n", deltaTime);
   //aqui faz aparecer o triangulo de vdd na tela, usa oq inicializamos no init()
-  m_player.paint();  
+  m_player.paint(glm::vec3(0.f), glm::vec3(1.f), glm::vec3(0, deltaTime*100000000000, 0));  
 }
 
 void Window::onResize(glm::ivec2 const &size) {
