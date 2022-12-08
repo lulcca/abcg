@@ -20,6 +20,8 @@ private:
   Player m_player;
 
   glm::ivec2 m_viewportSize{};
+  
+  abcg::Timer m_deltaTime;
 
   GLuint m_VAO{};
   GLuint m_VBOColors{};
