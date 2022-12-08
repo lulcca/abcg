@@ -3,6 +3,7 @@
 
 #include "abcgOpenGL.hpp"
 #include <glm/glm.hpp>
+#include "camera.hpp"
 
 class Player {
 public:
@@ -16,6 +17,7 @@ private:
   GLuint m_VBOColors{};
   
   GLuint m_program{};
+  Camera m_camera;
   
   unsigned int m_texture;
 

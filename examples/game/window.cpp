@@ -31,7 +31,9 @@ void Window::onPaint() {
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
   //aqui faz aparecer o triangulo de vdd na tela, usa oq inicializamos no init()
-  m_player.paint(glm::vec3(0.f), glm::vec3(1.f), glm::vec3(0, m_deltaTime.elapsed()*100, 0));  
+  //m_player.paint(glm::vec3(0.f), glm::vec3(1.f), glm::vec3(0, m_deltaTime.elapsed()*100, 0));  
+  m_player.paint(glm::vec3(0.f, -1.f, 0.f), glm::vec3(50.f, 1.f, 50.f), glm::vec3(0.f));  
+
 }
 
 void Window::onResize(glm::ivec2 const &size) {

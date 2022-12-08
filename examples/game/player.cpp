@@ -7,7 +7,7 @@
 void Player::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
 	
   glm::mat4 projection = glm::perspective(glm::radians(45.f), 1280.f/720.f, 0.1f, 100.0f);
-  glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0,0,-3));
+  glm::mat4 view = glm::translate(glm::mat4(1.0f), m_camera.pos);
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, pos);
   model = glm::scale(model, scale);
