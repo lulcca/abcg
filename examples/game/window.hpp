@@ -4,6 +4,7 @@
 #include "abcgOpenGL.hpp"
 #include "gamedata.hpp"
 #include "player.hpp"
+#include "obstacle.hpp"
 #include <string>
 
 class Window : public abcg::OpenGLWindow {
@@ -18,6 +19,9 @@ private:
   GameData m_gameData;
   
   Player m_player;
+  std::vector<Obstacle> m_obstacles;
+
+  float lastObstacleCreated;
 
   glm::ivec2 m_viewportSize{};
   
@@ -29,6 +33,8 @@ private:
 
   GLuint m_program{};
   GLuint m_playerProgram{};
+
+  void createObstacle();
 };
 
 #endif

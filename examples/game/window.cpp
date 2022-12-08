@@ -34,6 +34,16 @@ void Window::onPaint() {
   //m_player.paint(glm::vec3(0.f), glm::vec3(1.f), glm::vec3(0, m_deltaTime.elapsed()*100, 0));  
   m_player.paint(glm::vec3(0.f, -1.f, 0.f), glm::vec3(50.f, 1.f, 50.f), glm::vec3(0.f));  
 
+  lastObstacleCreated += m_deltaTime.elapsed();
+  if(lastObstacleCreated >= 10.f){
+    createObstacle();
+    lastObstacleCreated = 0.f;
+  }
+
+  for(long long unsigned i =0; i < m_obstacles.size(); i++){
+     m_player.paint(m_obstacles[i].pos, glm::vec3(1.f), glm::vec3(0.f));  
+  }
+
 }
 
 void Window::onResize(glm::ivec2 const &size) {
@@ -42,4 +52,9 @@ void Window::onResize(glm::ivec2 const &size) {
 
 void Window::onDestroy() {
   abcg::glDeleteProgram(m_program);
+}
+
+void Window::createObstacle(){
+  Obstacle obstacle (glm::vec3(0.f));
+  m_obstacles.push_back(obstacle);
 }
