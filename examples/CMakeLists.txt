@@ -1,1 +1,1 @@
-add_subdirectory(earth)
+add_subdirectory(game)
