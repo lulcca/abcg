@@ -5,6 +5,7 @@
 #include "gamedata.hpp"
 #include "player.hpp"
 #include "obstacle.hpp"
+#include "starlayers.hpp"
 #include <string>
 
 class Window : public abcg::OpenGLWindow {
@@ -21,6 +22,7 @@ private:
   
   Player m_player;
   Obstacle m_obstacle;
+  StarLayers m_starLayers;
 
   float lastObstacleCreated;
   int m_obstacleCount{2};
@@ -37,6 +39,7 @@ private:
   GLuint m_program{};
   GLuint m_playerProgram{};
   GLuint m_obstacleProgram{};
+  GLuint m_starsProgram{};
 
   void createObstacle();
 };

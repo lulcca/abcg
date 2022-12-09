@@ -6,7 +6,7 @@ int main(int argc, char **argv) {
 
     Window window;
     window.setOpenGLSettings({.samples = 4});
-    window.setWindowSettings({.width = 1400, .height = 1000, .showFPS = false, .title = "Game"});
+    window.setWindowSettings({.width = 1400, .height = 1000, .showFPS = false, .showFullscreenButton = false, .title = "Game"});
     app.run(window);
   } catch (std::exception const &exception) {
     fmt::print(stderr, "{}\n", exception.what());
