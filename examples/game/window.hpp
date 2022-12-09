@@ -27,7 +27,6 @@ private:
   float lastObstacleCreated;
   int m_obstacleCount{2};
   
-
   glm::ivec2 m_viewportSize{};
   
   abcg::Timer m_deltaTime;

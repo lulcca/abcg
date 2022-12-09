@@ -7,12 +7,20 @@ void Window::onEvent(SDL_Event const &event) {
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Left));
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Right));
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+      m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Up));
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+      m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Down));
   }
   if (event.type == SDL_KEYUP) {
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
       m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Left));
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
       m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Right));
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+      m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Up));
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+      m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Down));
   }
 }
 
@@ -34,24 +42,27 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
+  glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
-  //dps ao temos q trocar o paint etc do layer pro modelo escolhido!!
+  //dps temos q trocar o paint etc do layer pro modelo escolhido!!
   m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
   m_starLayers.paint();
+
+  //a cada distancia x do ultimo obstaculo, cria novos, assim n fica cheio de coisa na tela
   lastObstacleCreated += m_deltaTime.elapsed();
-  if(lastObstacleCreated >= 10.f && m_obstacleCount < 3){
+  if(lastObstacleCreated >= 60.f){
     createObstacle();
     lastObstacleCreated = 0.f;
+    m_deltaTime.restart();
   }
 
-  for(int i =0; i < m_obstacleCount; i++){
-    // fmt::print("{}\n",i);
-     //m_player.paint(glm::vec3(0.f, -2.f, -2.f), glm::vec3(1.f), glm::vec3(0, m_deltaTime.elapsed()*10*i, 0));  
-     //m_obstacle.paint(glm::vec3(0.f, -2.f, -2.f), glm::vec3(1.f), glm::vec3(0, m_deltaTime.elapsed()*100*i, 0)); 
+  //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
+  for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
+    m_gameData.m_obstaclesPositions[i].z += m_deltaTime.elapsed() / 2;
+    m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f)); 
   }
-
 }
 
 void Window::onUpdate() {
@@ -75,5 +86,8 @@ void Window::onDestroy() {
 }
 
 void Window::createObstacle(){
-  m_obstacleCount = m_obstacleCount + 1;
+  float x = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
+  float y = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
+  m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, y, -70.f));
+  m_gameData.m_obstaclesCount++;
 }
