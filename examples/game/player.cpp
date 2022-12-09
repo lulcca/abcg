@@ -32,14 +32,15 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
 }
 
 void Player::update(GameData m_gameData){
-  float step = 0.f;
+  float newXPosition = m_pos.x;
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Left)]){
-    step = -0.1f;
+    newXPosition = newXPosition - 0.1f < -4.5f ? -4.5f : newXPosition - 0.1f;
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Right)]){
-    step = 0.1f;
+    newXPosition =newXPosition + 0.1f > 4.5f ? 4.5f :  newXPosition + 0.1f;
   }
-  m_pos = glm::vec3(m_pos.x + step, -1.2f, -2.f);
+
+  m_pos = glm::vec3(newXPosition, -1.2f, -2.f);
 }
 
 void Player::create(GLuint program) {
