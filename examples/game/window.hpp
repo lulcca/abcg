@@ -12,6 +12,7 @@ protected:
   void onEvent(SDL_Event const &event) override;
   void onCreate() override;
   void onPaint() override;
+  void onUpdate() override;
   void onResize(glm::ivec2 const &size) override;
   void onDestroy() override;
 
@@ -19,9 +20,11 @@ private:
   GameData m_gameData;
   
   Player m_player;
-  std::vector<Obstacle> m_obstacles;
+  Obstacle m_obstacle;
 
   float lastObstacleCreated;
+  int m_obstacleCount{2};
+  
 
   glm::ivec2 m_viewportSize{};
   
@@ -33,6 +36,7 @@ private:
 
   GLuint m_program{};
   GLuint m_playerProgram{};
+  GLuint m_obstacleProgram{};
 
   void createObstacle();
 };

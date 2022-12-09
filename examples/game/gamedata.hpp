@@ -8,7 +8,7 @@ enum class Direction { Left, Right };
 
 struct GameData {
   State m_state{State::Playing};
-  Direction m_direction{Direction::Right};
+  std::bitset<2> m_direction; 
 };
 
 #endif

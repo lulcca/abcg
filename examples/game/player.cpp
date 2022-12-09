@@ -4,12 +4,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void Player::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
+void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
 	
   glm::mat4 projection = glm::perspective(glm::radians(45.f), 1280.f/720.f, 0.1f, 100.0f);
   glm::mat4 view = glm::translate(glm::mat4(1.0f), m_camera.pos);
   glm::mat4 model = glm::mat4(1.0f);
-  model = glm::translate(model, pos);
+  model = glm::translate(model, m_pos);
   model = glm::scale(model, scale);
   model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1,0,0));
   model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0,1,0));
@@ -29,6 +29,17 @@ void Player::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
   glBindVertexArray(0);
   glUseProgram(0);
+}
+
+void Player::update(GameData m_gameData){
+  float step = 0.f;
+  if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Left)]){
+    step = -0.1f;
+  }
+  if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Right)]){
+    step = 0.1f;
+  }
+  m_pos = glm::vec3(m_pos.x + step, -1.2f, -2.f);
 }
 
 void Player::create(GLuint program) {
