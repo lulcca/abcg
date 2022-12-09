@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+//trocar pra model
 void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
 	
   glm::mat4 projection = glm::perspective(glm::radians(45.f), 1280.f/720.f, 0.1f, 100.0f);
@@ -33,14 +33,16 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
 
 void Player::update(GameData m_gameData){
   float newXPosition = m_pos.x;
+  float step = 0.1f;
+
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Left)]){
-    newXPosition = newXPosition - 0.1f < -4.5f ? -4.5f : newXPosition - 0.1f;
+    newXPosition = newXPosition - step < -4.5f ? -4.5f : newXPosition - step;
+    m_pos = glm::vec3(newXPosition, -1.2f, -2.f);
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Right)]){
-    newXPosition =newXPosition + 0.1f > 4.5f ? 4.5f :  newXPosition + 0.1f;
+    newXPosition =newXPosition + step > 4.5f ? 4.5f :  newXPosition + step;
+    m_pos = glm::vec3(newXPosition, -1.2f, -2.f);
   }
-
-  m_pos = glm::vec3(newXPosition, -1.2f, -2.f);
 }
 
 void Player::create(GLuint program) {
@@ -56,6 +58,7 @@ void Player::destroy(){
   glDeleteVertexArrays(1, &m_VAO);
 }
 
+//trocar pra usar model
 void Player::setVAO() {
 
     float v[] = {
@@ -115,6 +118,7 @@ void Player::setVAO() {
 	glEnableVertexAttribArray(1);
 }
 
+//trocar a textura pra model
 void Player::loadTexture(){
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
   
