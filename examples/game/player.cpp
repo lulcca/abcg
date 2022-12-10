@@ -31,27 +31,8 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
   glUseProgram(0);
 }
 
-void Player::update(GameData* m_gameData){
-  setMovement(*m_gameData);
-  checkColision(m_gameData);
-  checkDeath(m_gameData);
-}
-
-void Player::checkColision(GameData* m_gameData){
-  for (int i = 0; i < m_gameData->m_obstaclesCount; i++){
-    glm::vec3 currentPosition = m_gameData->m_obstaclesPositions[i];
-    if(currentPosition.x < m_pos.x + 0.4f && currentPosition.x > m_pos.x - 0.4f && currentPosition.z < m_pos.z + 0.4f && currentPosition.z > m_pos.z - 0.4f &&  m_gameData->m_lastHitIndex != i ){
-      m_gameData->m_hit++;
-      m_gameData->m_lastHitIndex = i;
-    }
-  }
-}
-
-void Player::checkDeath(GameData* m_gameData){
-  if(m_gameData->m_hit > 2){
-    m_gameData->m_state = State::GameOver;
-    m_pos = glm::vec3({0.f, -1.2f, -2.f});
-  }
+void Player::update(GameData m_gameData){
+  setMovement(m_gameData);
 }
 
 void Player::setMovement(GameData m_gameData){

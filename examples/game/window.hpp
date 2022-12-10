@@ -45,6 +45,8 @@ private:
   GLuint m_starsProgram{};
 
   void createObstacle();
+  void checkColision();
+  void checkDeath();
   void restart();
 };
 

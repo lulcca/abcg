@@ -10,8 +10,10 @@ class Player {
 public:
   void create(GLuint program);
   void paint(glm::vec3 scale, glm::vec3 rotation);
-  void update(GameData* m_gameData);
+  void update(GameData m_gameData);
   void destroy();
+
+  glm::vec3 m_pos{0.f, -1.2f, -2.f};
  
 private:
   GLuint m_VAO{};
@@ -20,15 +22,12 @@ private:
   
   GLuint m_program{};
   Camera m_camera;
-  glm::vec3 m_pos{0.f, -1.2f, -2.f};
   
   unsigned int m_texture;
 
   void setVAO();
   void loadTexture();
   void setMovement(GameData m_gameData);
-  void checkColision(GameData* m_gameData);
-  void checkDeath(GameData* m_gameData);
 };
 
 #endif

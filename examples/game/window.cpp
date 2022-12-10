@@ -54,7 +54,9 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
-  if (m_gameData.m_state == State::Playing){
+  fmt::print("{}\n", m_gameData.m_hit);
+
+  if (m_gameData.m_state == State::Playing) {
     
     // interface update are based on time elapsed instead of hardware
     if (m_deltaTime.elapsed() < 0.01) {
@@ -119,8 +121,11 @@ void Window::onUpdate() {
       return;
     }
 
-    m_player.update(&m_gameData);
+    m_player.update(m_gameData);
     m_updateTime.restart();
+    checkColision();
+    checkDeath();
+
   } else if (m_gameData.m_state == State::GameOver){
     m_updateTime.restart();
   }
@@ -171,4 +176,21 @@ void Window::createObstacle(){
   float x = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
   m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, -1.2f, -70.f));
   m_gameData.m_obstaclesCount++;
+}
+
+void Window::checkColision(){
+  for (int i = 0; i < m_gameData.m_obstaclesCount; i++){
+    glm::vec3 currentPosition = m_gameData.m_obstaclesPositions[i];
+    if(currentPosition.x < m_player.m_pos.x + 0.4f && currentPosition.x > m_player.m_pos.x - 0.4f && currentPosition.z < m_player.m_pos.z + 0.4f && currentPosition.z > m_player.m_pos.z - 0.4f &&  m_gameData.m_lastHitIndex != i ){
+      m_gameData.m_hit++;
+      m_gameData.m_lastHitIndex = i;
+    }
+  }
+}
+
+void Window::checkDeath(){
+  if(m_gameData.m_hit > 2){
+    m_gameData.m_state = State::GameOver;
+    m_player.m_pos = glm::vec3({0.f, -1.2f, -2.f});
+  }
 }
