@@ -29,7 +29,7 @@ void Window::onEvent(SDL_Event const &event) {
 void Window::onCreate() {
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
 
-  auto const filename{m_assetsPath + "Inconsolata-Medium.ttf"};
+  auto const filename{m_assetsPath + "./fonts/Inconsolata-Medium.ttf"};
   m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), 30.0f);
   if (m_font == nullptr) {
     throw abcg::RuntimeError{"Cannot load font file"};

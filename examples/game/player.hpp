@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "camera.hpp"
 #include "gamedata.hpp"
+#include "model.hpp"
 
 class Player {
 public:
@@ -19,14 +20,26 @@ private:
   GLuint m_VAO{};
   GLuint m_VBOPositions{};
   GLuint m_VBOColors{};
-  
+  Model m_model;
   GLuint m_program{};
   Camera m_camera;
   
   unsigned int m_texture;
 
-  void setVAO();
-  void loadTexture();
+  glm::mat4 m_modelMatrix{1.0f};
+  glm::mat4 m_viewMatrix{1.0f};
+  glm::mat4 m_projMatrix{1.0f};
+
+  glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
+  glm::vec4 m_Ia{1.0f};
+  glm::vec4 m_Id{1.0f};
+  glm::vec4 m_Is{1.0f};
+  glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
+  glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
+  glm::vec4 m_Ks{1.0f};
+  float m_shininess{25.0f};
+
+  void loadModel();
   void setMovement(GameData m_gameData);
 };
 

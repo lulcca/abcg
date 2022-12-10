@@ -16,19 +16,58 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
   model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0,0,1));
 
   glUseProgram(m_program);
-  auto const viewMatrixLoc{glGetUniformLocation(m_program, "proj")};
-  auto const projMatrixLoc{glGetUniformLocation(m_program, "view")};
-  auto const modelMatrixLoc{glGetUniformLocation(m_program, "model")};
+  auto const viewMatrixLoc{glGetUniformLocation(m_program, "projMatrix")};
+  auto const projMatrixLoc{glGetUniformLocation(m_program, "viewMatrix")};
+  auto const modelMatrixLoc{glGetUniformLocation(m_program, "modelMatrix")};
 
   glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-	glBindVertexArray(m_VAO);
-  glBindTexture(GL_TEXTURE_2D, m_texture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-  glBindVertexArray(0);
-  glUseProgram(0);
+	// glBindVertexArray(m_VAO);
+  // glBindTexture(GL_TEXTURE_2D, m_texture);
+	// glDrawArrays(GL_TRIANGLES, 0, 36);
+  // glBindVertexArray(0);
+  // glUseProgram(0);
+
+
+  auto const normalMatrixLoc{abcg::glGetUniformLocation(m_program, "normalMatrix")};
+  auto const lightDirLoc{abcg::glGetUniformLocation(m_program, "lightDirWorldSpace")};
+  auto const shininessLoc{abcg::glGetUniformLocation(m_program, "shininess")};
+  auto const IaLoc{abcg::glGetUniformLocation(m_program, "Ia")};
+  auto const IdLoc{abcg::glGetUniformLocation(m_program, "Id")};
+  auto const IsLoc{abcg::glGetUniformLocation(m_program, "Is")};
+  auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
+  auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
+  auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
+  auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
+  auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
+
+  // set uniform variables that have the same value for every model
+  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &view[0][0]);
+  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &projection[0][0]);
+  abcg::glUniform1i(diffuseTexLoc, 0);
+  abcg::glUniform1i(mappingModeLoc, 3);
+
+  auto const lightDirRotated{m_modelMatrix * m_lightDir};
+  abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
+
+  // set uniform variables for the current model
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
+
+  auto const modelViewMatrix{glm::mat3(m_viewMatrix * model)};
+  auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  // rendering the model
+  m_model.render();
 }
 
 void Player::update(GameData m_gameData){
@@ -57,88 +96,29 @@ void Player::setMovement(GameData m_gameData){
 
 void Player::create(GLuint program) {
   m_program = program;
-  setVAO();
-  loadTexture();
+  loadModel();
 }
 
 void Player::destroy(){
   glDeleteProgram(m_program);
-  glDeleteBuffers(1, &m_VBOPositions);
-  glDeleteBuffers(1, &m_VBOColors);
-  glDeleteVertexArrays(1, &m_VAO);
+  m_model.destroy();
 }
 
-//trocar pra usar model
-void Player::setVAO() {
-
-    float v[] = {
-        // Back face
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,        
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
-        // Front face
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-        // Left face
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-        // Right face
-         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,     
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 
-         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   
-        // Bottom face
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-        // Top face
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  
-	};
-
-  unsigned int VBO;
-	glGenVertexArrays(1, &m_VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(m_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-}
-
-//trocar a textura pra model
-void Player::loadTexture(){
+void Player::loadModel(){
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
-  
-  GLuint data = abcg::loadOpenGLTexture({.path = m_assetsPath + "./texture/wall.jpg"});
-  if(data){
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_texture = data;
-  }
+  m_model.destroy();
+
+  // load texture (earth.jpg)
+  m_model.loadDiffuseTexture(m_assetsPath + "./textures/earth.jpg");
+
+  // load object (earth.obj)
+  m_model.loadObj(m_assetsPath + "./models/earth.obj");
+  m_model.setupVAO(m_program);
+
+  // use material properties from the loaded model
+  m_Ka = m_model.getKa();
+  m_Kd = m_model.getKd();
+  m_Ks = m_model.getKs();
+  m_shininess = m_model.getShininess();
 }
 
