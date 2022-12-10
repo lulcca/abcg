@@ -13,21 +13,23 @@ protected:
   void onEvent(SDL_Event const &event) override;
   void onCreate() override;
   void onPaint() override;
+  void onPaintUI() override;
   void onUpdate() override;
   void onResize(glm::ivec2 const &size) override;
   void onDestroy() override;
 
-private:
-  GameData m_gameData;
-  
+private:  
   Player m_player;
   Obstacle m_obstacle;
   StarLayers m_starLayers;
+  GameData m_gameData;
 
   float obstacleTime;
   int m_obstacleCount{2};
   
   glm::ivec2 m_viewportSize{};
+
+  ImFont *m_font{};
   
   abcg::Timer m_deltaTime;
   abcg::Timer m_updateTime;
@@ -43,6 +45,7 @@ private:
   GLuint m_starsProgram{};
 
   void createObstacle();
+  void restart();
 };
 
 #endif

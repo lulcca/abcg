@@ -15,6 +15,7 @@ struct GameData {
   vector<glm::vec3> m_obstaclesPositions;
   int m_obstaclesCount{0};
   int m_hit{0};
+  int m_lastHitIndex{-1};
 };
 
 #endif

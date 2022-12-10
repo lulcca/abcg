@@ -10,7 +10,7 @@ class Player {
 public:
   void create(GLuint program);
   void paint(glm::vec3 scale, glm::vec3 rotation);
-  void update(GameData m_gameData);
+  void update(GameData* m_gameData);
   void destroy();
  
 private:
@@ -27,8 +27,8 @@ private:
   void setVAO();
   void loadTexture();
   void setMovement(GameData m_gameData);
-  void checkColision(GameData m_gameData);
-  void checkDeath(GameData m_gameData);
+  void checkColision(GameData* m_gameData);
+  void checkDeath(GameData* m_gameData);
 };
 
 #endif
