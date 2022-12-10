@@ -1,6 +1,8 @@
 #include "window.hpp"
 #include <glm/glm.hpp>
 
+using std::string;
+
 void Window::onEvent(SDL_Event const &event) {
   if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
@@ -27,6 +29,12 @@ void Window::onEvent(SDL_Event const &event) {
 void Window::onCreate() {
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
 
+  auto const filename{m_assetsPath + "Inconsolata-Medium.ttf"};
+  m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), 30.0f);
+  if (m_font == nullptr) {
+    throw abcg::RuntimeError{"Cannot load font file"};
+  }
+
   m_starsProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/stars.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/stars.frag", .stage = abcg::ShaderStage::Fragment}});
   m_program = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/main.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/main.frag", .stage = abcg::ShaderStage::Fragment}});
   m_playerProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/player.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/player.frag", .stage = abcg::ShaderStage::Fragment}});
@@ -43,51 +51,104 @@ void Window::onCreate() {
 
 void Window::onPaint() {
   // interface update are based on time elapsed instead of hardware
-  if (m_deltaTime.elapsed() > 1) {
-    return;
-  }
-
-  // restart timer when entered
-  m_deltaTime.restart();
 
   // clear window and set the viewport
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-
-  //dps temos q trocar o paint etc do layer pro modelo escolhido!!
-  m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
   m_starLayers.paint();
 
-  // obstacle creation has its own timer, create obstacles every 1 seconds
-  if (m_obstacleTime.elapsed() > 1) {
-    createObstacle();
-    m_obstacleTime.restart();
-  }
 
-  //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
-  for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
-    m_gameData.m_obstaclesPositions[i].z += 0.01;
-    m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
+  if (m_gameData.m_state == State::Playing){
+    if (m_deltaTime.elapsed() > 1) {
+      return;
+    }
+
+    // restart timer when entered
+    m_deltaTime.restart();
+
+    //dps temos q trocar o paint etc do layer pro modelo escolhido!!
+    m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
+    
+
+    // obstacle creation has its own timer, create obstacles every 1 seconds
+    if (m_obstacleTime.elapsed() > 1) {
+      createObstacle();
+      m_obstacleTime.restart();
+    }
+
+    //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
+    for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
+      m_gameData.m_obstaclesPositions[i].z += 0.01;
+      m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
+    }
+  } else if (m_gameData.m_state == State::GameOver){
+    if(m_deltaTime.elapsed() > 3){
+      restart();
+    }
   }
+}
+
+void Window::restart(){
+  m_gameData.m_hit = 0;
+  m_gameData.m_obstaclesPositions.clear();
+  m_gameData.m_obstaclesCount = 0;
+  m_gameData.m_lastHitIndex = -1;
+  m_gameData.m_state = State::Playing;
+  m_deltaTime.restart();
+  m_obstacleTime.restart();
 }
 
 void Window::onUpdate() {
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
   m_starLayers.update(deltaTime);
-  
-  // interface update are based on time elapsed instead of hardware
-  if (m_updateTime.elapsed() > 1) {
-    return;
-  }
+  //restart timer when entered
 
-  // restart timer when entered
-  m_updateTime.restart();
-  m_player.update(m_gameData);
+
+  if (m_gameData.m_state == State::Playing){
+      
+  // interface update are based on time elapsed instead of hardware
+    if (m_updateTime.elapsed() > 1) {
+      return;
+    }
+
+    m_updateTime.restart();
+
+    m_player.update(&m_gameData);
+  } else if (m_gameData.m_state == State::GameOver){
+    m_updateTime.restart();
+  }
+}
+
+
+void Window::onPaintUI() {
+  abcg::OpenGLWindow::onPaintUI();
+
+  {
+    auto const size{ImVec2(300, 85)};
+    ImGui::SetNextWindowSize(size);
+    ImGuiWindowFlags const flags{ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
+    ImGui::PushFont(m_font);
+        
+    if(m_gameData.m_state == State::GameOver){
+      string status = "GameOver";
+
+      auto const position{ImVec2((m_viewportSize.x - size.x) / 2.0f, (m_viewportSize.y - size.y) / 2.0f)};
+      ImGui::SetNextWindowPos(position);
+      float font_size = ImGui::GetFontSize() * status.size() / 2;
+      ImGui::Begin(" ", nullptr, flags);
+      ImGui::SameLine(ImGui::GetWindowSize().x / 2 - font_size + (font_size / 2));
+      ImGui::Text("%s", status.c_str());
+      ImGui::PopFont();
+      ImGui::End();
+    
+    }
+  }
 }
 
 void Window::onResize(glm::ivec2 const &size) {
   m_viewportSize = size;
+  abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::onDestroy() {
