@@ -44,23 +44,17 @@ void Window::onCreate() {
   
   abcg::glEnable(GL_DEPTH_TEST);
   
-  m_starLayers.create(m_starsProgram, 100);
+  m_starLayers.create(m_starsProgram, 25);
   m_player.create(m_playerProgram);
   m_obstacle.create(m_obstacleProgram);
 
   #if !defined(__EMSCRIPTEN__)
-    abcg::glEnable(GL_PROGRAM_POINT_SIZE);
+    abcg::glDisable(GL_PROGRAM_POINT_SIZE);
   #endif
 }
 
 void Window::onPaint() {
   // interface update are based on time elapsed instead of hardware
-  if (m_deltaTime.elapsed() < 0.01) {
-    return;
-  }
-
-  // restart timer when entered
-  m_deltaTime.restart();
 
   // clear window and set the viewport
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
@@ -68,19 +62,18 @@ void Window::onPaint() {
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
   m_starLayers.paint();
 
-
   if (m_gameData.m_state == State::Playing){
-    // if (m_deltaTime.elapsed() > 1) {
-    //   return;
-    // }
+
+    if (m_deltaTime.elapsed() < 0.01) {
+      return;
+    }
 
     // restart timer when entered
-    // m_deltaTime.restart();
+    m_deltaTime.restart();
 
     //dps temos q trocar o paint etc do layer pro modelo escolhido!!
     m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
     
-
     // obstacle creation has its own timer, create obstacles every 1 seconds
     if (m_obstacleTime.elapsed() > 1) {
       createObstacle();
