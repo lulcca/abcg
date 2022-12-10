@@ -53,7 +53,7 @@ void Player::checkDeath(GameData m_gameData){
 }
 
 void Player::setMovement(GameData m_gameData){
-  float step = 0.005f;
+  float step = 0.1f;
   float newXPosition = m_pos.x;
   float newZPosition = m_pos.z;
 

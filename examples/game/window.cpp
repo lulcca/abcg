@@ -43,7 +43,7 @@ void Window::onCreate() {
 
 void Window::onPaint() {
   // interface update are based on time elapsed instead of hardware
-  if (m_deltaTime.elapsed() > 1) {
+  if (m_deltaTime.elapsed() < 0.01) {
     return;
   }
 
@@ -52,7 +52,7 @@ void Window::onPaint() {
 
   // clear window and set the viewport
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
-  abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+  abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
   //dps temos q trocar o paint etc do layer pro modelo escolhido!!
@@ -67,7 +67,7 @@ void Window::onPaint() {
 
   //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
   for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
-    m_gameData.m_obstaclesPositions[i].z += 0.01;
+    m_gameData.m_obstaclesPositions[i].z += 0.5;
     m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
   }
 }
@@ -77,7 +77,7 @@ void Window::onUpdate() {
   m_starLayers.update(deltaTime);
   
   // interface update are based on time elapsed instead of hardware
-  if (m_updateTime.elapsed() > 1) {
+  if (m_updateTime.elapsed() < 0.01) {
     return;
   }
 
