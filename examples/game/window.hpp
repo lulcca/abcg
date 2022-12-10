@@ -32,8 +32,11 @@ private:
   ImFont *m_font{};
   
   abcg::Timer m_deltaTime;
-  abcg::Timer m_updateTime;
+  abcg::Timer m_updateTime; 
   abcg::Timer m_obstacleTime;
+  abcg::Timer m_starTime;
+
+  abcg::Timer m_collisionTime;
 
   GLuint m_VAO{};
   GLuint m_VBOColors{};
@@ -45,7 +48,7 @@ private:
   GLuint m_starsProgram{};
 
   void createObstacle();
-  void checkColision();
+  void checkCollision();
   void checkDeath();
   void restart();
 };

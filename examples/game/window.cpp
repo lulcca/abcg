@@ -54,8 +54,6 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
-  fmt::print("{}\n", m_gameData.m_hit);
-
   if (m_gameData.m_state == State::Playing) {
     
     // interface update are based on time elapsed instead of hardware
@@ -72,8 +70,18 @@ void Window::onPaint() {
     abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
     m_starLayers.paint();
 
-    //dps temos q trocar o paint etc do layer pro modelo escolhido!!
-    m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
+    // paint player if its not colliding
+    if(
+      (m_collisionTime.elapsed() >= 0.0 && m_collisionTime.elapsed() < 0.1) || 
+      (m_collisionTime.elapsed() >= 0.2 && m_collisionTime.elapsed() < 0.3) ||
+      (m_collisionTime.elapsed() >= 0.4 && m_collisionTime.elapsed() < 0.5)
+    ) {
+      // we do not do anything in this case
+    } else {
+
+      // we paint the player
+      m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
+    }
     
     // obstacle creation has its own timer, create obstacles every 1 seconds
     if (m_obstacleTime.elapsed() > 1) {
@@ -99,7 +107,7 @@ void Window::onPaint() {
   }
 }
 
-void Window::restart(){
+void Window::restart() {
   m_gameData.m_hit = 0;
   m_gameData.m_obstaclesPositions.clear();
   m_gameData.m_obstaclesCount = 0;
@@ -123,7 +131,7 @@ void Window::onUpdate() {
 
     m_player.update(m_gameData);
     m_updateTime.restart();
-    checkColision();
+    checkCollision();
     checkDeath();
 
   } else if (m_gameData.m_state == State::GameOver){
@@ -172,23 +180,24 @@ void Window::onDestroy() {
   m_obstacle.destroy();
 }
 
-void Window::createObstacle(){
+void Window::createObstacle() {
   float x = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
   m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, -1.2f, -70.f));
   m_gameData.m_obstaclesCount++;
 }
 
-void Window::checkColision(){
+void Window::checkCollision() {
   for (int i = 0; i < m_gameData.m_obstaclesCount; i++){
     glm::vec3 currentPosition = m_gameData.m_obstaclesPositions[i];
-    if(currentPosition.x < m_player.m_pos.x + 0.4f && currentPosition.x > m_player.m_pos.x - 0.4f && currentPosition.z < m_player.m_pos.z + 0.4f && currentPosition.z > m_player.m_pos.z - 0.4f &&  m_gameData.m_lastHitIndex != i ){
+    if(currentPosition.x < m_player.m_pos.x + 1.f && currentPosition.x > m_player.m_pos.x - 1.f && currentPosition.z < m_player.m_pos.z + 1.f && currentPosition.z > m_player.m_pos.z - 1.f &&  m_gameData.m_lastHitIndex != i){
       m_gameData.m_hit++;
       m_gameData.m_lastHitIndex = i;
+      m_collisionTime.restart();
     }
   }
 }
 
-void Window::checkDeath(){
+void Window::checkDeath() {
   if(m_gameData.m_hit > 2){
     m_gameData.m_state = State::GameOver;
     m_player.m_pos = glm::vec3({0.f, -1.2f, -2.f});
