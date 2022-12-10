@@ -47,6 +47,10 @@ void Window::onCreate() {
   m_starLayers.create(m_starsProgram, 100);
   m_player.create(m_playerProgram);
   m_obstacle.create(m_obstacleProgram);
+
+  #if !defined(__EMSCRIPTEN__)
+    abcg::glEnable(GL_PROGRAM_POINT_SIZE);
+  #endif
 }
 
 void Window::onPaint() {
