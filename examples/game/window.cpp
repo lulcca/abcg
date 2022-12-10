@@ -42,6 +42,15 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
+  // interface update are based on time elapsed instead of hardware
+  if (m_deltaTime.elapsed() > 1) {
+    return;
+  }
+
+  // restart timer when entered
+  m_deltaTime.restart();
+
+  // clear window and set the viewport
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
@@ -50,18 +59,16 @@ void Window::onPaint() {
   m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
   m_starLayers.paint();
 
-  //a cada distancia x do ultimo obstaculo, cria novos, assim n fica cheio de coisa na tela
-  lastObstacleCreated += m_deltaTime.elapsed();
-  if(lastObstacleCreated >= 60.f){
+  // obstacle creation has its own timer, create obstacles every 1 seconds
+  if (m_obstacleTime.elapsed() > 1) {
     createObstacle();
-    lastObstacleCreated = 0.f;
-    m_deltaTime.restart();
+    m_obstacleTime.restart();
   }
 
   //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
   for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
-    m_gameData.m_obstaclesPositions[i].z += m_deltaTime.elapsed() / 2;
-    m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f)); 
+    m_gameData.m_obstaclesPositions[i].z += 0.01;
+    m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
   }
 }
 

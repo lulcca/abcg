@@ -24,12 +24,13 @@ private:
   Obstacle m_obstacle;
   StarLayers m_starLayers;
 
-  float lastObstacleCreated;
+  float obstacleTime;
   int m_obstacleCount{2};
   
   glm::ivec2 m_viewportSize{};
   
   abcg::Timer m_deltaTime;
+  abcg::Timer m_obstacleTime;
 
   GLuint m_VAO{};
   GLuint m_VBOColors{};
