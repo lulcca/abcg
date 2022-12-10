@@ -53,10 +53,9 @@ void Player::checkDeath(GameData m_gameData){
 }
 
 void Player::setMovement(GameData m_gameData){
+  float step = 0.005f;
   float newXPosition = m_pos.x;
-  float newYPosition = m_pos.y;
   float newZPosition = m_pos.z;
-  float step = 0.1f;
 
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Left)]){
     newXPosition = newXPosition - step < -4.5f ? -4.5f : newXPosition - step;
@@ -65,12 +64,12 @@ void Player::setMovement(GameData m_gameData){
     newXPosition =newXPosition + step > 4.5f ? 4.5f :  newXPosition + step;
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Up)]){
-    newZPosition = newZPosition - step < -10.f ? -10.f :  newZPosition - 0.1f;
+    newZPosition = newZPosition - 2 * step < -10.f ? -10.f :  newZPosition - 2 * step;
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Down)]){
-    newZPosition = newZPosition + step > -2.f ? -2.f :  newZPosition + 0.1f;
+    newZPosition = newZPosition + 2 * step > -2.f ? -2.f :  newZPosition + 2 * step;
   }
-  m_pos = glm::vec3(newXPosition, newYPosition, newZPosition);
+  m_pos = glm::vec3(newXPosition, m_pos.y, newZPosition);
 }
 
 void Player::create(GLuint program) {

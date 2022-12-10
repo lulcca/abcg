@@ -30,6 +30,7 @@ private:
   glm::ivec2 m_viewportSize{};
   
   abcg::Timer m_deltaTime;
+  abcg::Timer m_updateTime;
   abcg::Timer m_obstacleTime;
 
   GLuint m_VAO{};

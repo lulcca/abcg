@@ -75,6 +75,14 @@ void Window::onPaint() {
 void Window::onUpdate() {
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
   m_starLayers.update(deltaTime);
+  
+  // interface update are based on time elapsed instead of hardware
+  if (m_updateTime.elapsed() > 1) {
+    return;
+  }
+
+  // restart timer when entered
+  m_updateTime.restart();
   m_player.update(m_gameData);
 }
 
