@@ -54,22 +54,21 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
-  // interface update are based on time elapsed instead of hardware
-
-  // clear window and set the viewport
-  glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
-  abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-  m_starLayers.paint();
-
   if (m_gameData.m_state == State::Playing){
-
+    
+    // interface update are based on time elapsed instead of hardware
     if (m_deltaTime.elapsed() < 0.01) {
       return;
     }
 
     // restart timer when entered
     m_deltaTime.restart();
+
+      // clear window and set the viewport
+    glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
+    abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
+    m_starLayers.paint();
 
     //dps temos q trocar o paint etc do layer pro modelo escolhido!!
     m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
@@ -86,6 +85,12 @@ void Window::onPaint() {
       m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
     }
   } else if (m_gameData.m_state == State::GameOver){
+    // clear window and set the viewport
+    glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
+    abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
+    m_starLayers.paint();
+
     if(m_deltaTime.elapsed() > 3){
       restart();
     }
