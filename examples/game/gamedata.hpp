@@ -14,6 +14,7 @@ struct GameData {
   std::bitset<4> m_direction; 
   vector<glm::vec3> m_obstaclesPositions;
   int m_obstaclesCount{0};
+  int m_hit{0};
 };
 
 #endif

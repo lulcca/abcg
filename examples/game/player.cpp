@@ -32,8 +32,30 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
 }
 
 void Player::update(GameData m_gameData){
+  setMovement(m_gameData);
+  checkColision(m_gameData);
+  checkDeath(m_gameData);
+}
+
+void Player::checkColision(GameData m_gameData){
+  for (int i = 0; i < m_gameData.m_obstaclesCount; i++){
+    glm::vec3 currentPosition = m_gameData.m_obstaclesPositions[i];
+    if(currentPosition.x < m_pos.x + 0.3f && currentPosition.x > m_pos.x - 0.4f && currentPosition.z < m_pos.z + 0.3f && currentPosition.z > m_pos.z - 0.3f ){
+      m_gameData.m_hit++;
+    }
+  }
+}
+
+void Player::checkDeath(GameData m_gameData){
+  if(m_gameData.m_hit > 3){
+    m_gameData.m_state = State::GameOver;
+  }
+}
+
+void Player::setMovement(GameData m_gameData){
   float newXPosition = m_pos.x;
   float newYPosition = m_pos.y;
+  float newZPosition = m_pos.z;
   float step = 0.1f;
 
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Left)]){
@@ -43,12 +65,12 @@ void Player::update(GameData m_gameData){
     newXPosition =newXPosition + step > 4.5f ? 4.5f :  newXPosition + step;
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Up)]){
-    newYPosition = newYPosition + step > 3.2f ? 3.2f :  newYPosition + step;
+    newZPosition = newZPosition - step < -10.f ? -10.f :  newZPosition - 0.1f;
   }
   if (m_gameData.m_direction[gsl::narrow<size_t>(Direction::Down)]){
-    newYPosition = newYPosition - step < -1.2f ? -1.2f :  newYPosition - step;
+    newZPosition = newZPosition + step > -2.f ? -2.f :  newZPosition + 0.1f;
   }
-  m_pos = glm::vec3(newXPosition, newYPosition, -2.f);
+  m_pos = glm::vec3(newXPosition, newYPosition, newZPosition);
 }
 
 void Player::create(GLuint program) {
