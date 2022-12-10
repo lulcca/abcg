@@ -94,7 +94,6 @@ void Window::onDestroy() {
 
 void Window::createObstacle(){
   float x = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
-  float y = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
-  m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, y, -70.f));
+  m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, -1.2f, -70.f));
   m_gameData.m_obstaclesCount++;
 }

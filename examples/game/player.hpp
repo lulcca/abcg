@@ -26,6 +26,9 @@ private:
 
   void setVAO();
   void loadTexture();
+  void setMovement(GameData m_gameData);
+  void checkColision(GameData m_gameData);
+  void checkDeath(GameData m_gameData);
 };
 
 #endif
