@@ -35,7 +35,6 @@ void Window::onCreate() {
     throw abcg::RuntimeError{"Cannot load font file"};
   }
 
-  m_starsProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/stars.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/stars.frag", .stage = abcg::ShaderStage::Fragment}});
   m_program = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/main.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/main.frag", .stage = abcg::ShaderStage::Fragment}});
   m_playerProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/player.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/player.frag", .stage = abcg::ShaderStage::Fragment}});
   m_obstacleProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obstacles.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obstacles.frag", .stage = abcg::ShaderStage::Fragment}});
@@ -43,9 +42,7 @@ void Window::onCreate() {
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   
   abcg::glEnable(GL_DEPTH_TEST);
-  // abcg::glDisable(GL_PROGRAM_POINT_SIZE);
 
-  m_starLayers.create(m_starsProgram, 25);
   m_player.create(m_playerProgram);
   m_obstacle.create(m_obstacleProgram);
 }
@@ -65,7 +62,6 @@ void Window::onPaint() {
     glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
     abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-    m_starLayers.paint();
 
     // paint player if its not colliding
     if(
@@ -96,7 +92,6 @@ void Window::onPaint() {
     glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
     abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
-    m_starLayers.paint();
 
     if(m_deltaTime.elapsed() > 3){
       restart();
@@ -115,10 +110,6 @@ void Window::restart() {
 }
 
 void Window::onUpdate() {
-  auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
-  m_starLayers.update(deltaTime);
-  //restart timer when entered
-
   if (m_gameData.m_state == State::Playing){
       
   // interface update are based on time elapsed instead of hardware
@@ -170,9 +161,7 @@ void Window::onResize(glm::ivec2 const &size) {
 void Window::onDestroy() {
   abcg::glDeleteProgram(m_program);
   abcg::glDeleteProgram(m_playerProgram);
-  abcg::glDeleteProgram(m_starsProgram);
   abcg::glDeleteProgram(m_obstacleProgram);
-  m_starLayers.destroy();
   m_player.destroy();
   m_obstacle.destroy();
 }

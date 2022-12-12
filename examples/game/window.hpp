@@ -5,7 +5,6 @@
 #include "gamedata.hpp"
 #include "player.hpp"
 #include "obstacle.hpp"
-#include "starlayers.hpp"
 #include <string>
 
 class Window : public abcg::OpenGLWindow {
@@ -21,7 +20,6 @@ protected:
 private:  
   Player m_player;
   Obstacle m_obstacle;
-  StarLayers m_starLayers;
   GameData m_gameData;
   
   glm::ivec2 m_viewportSize{};
@@ -32,13 +30,11 @@ private:
   abcg::Timer m_deltaTime;
   abcg::Timer m_updateTime; 
   abcg::Timer m_obstacleTime;
-  abcg::Timer m_starTime;
   abcg::Timer m_collisionTime;
 
   GLuint m_program{};
   GLuint m_playerProgram{};
   GLuint m_obstacleProgram{};
-  GLuint m_starsProgram{};
 
   void createObstacle();
   void checkCollision();
