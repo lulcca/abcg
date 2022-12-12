@@ -158,6 +158,7 @@ void Window::onResize(glm::ivec2 const &size) {
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 }
 
+//Liberação dos recursos alocados durante a aplicação
 void Window::onDestroy() {
   abcg::glDeleteProgram(m_program);
   abcg::glDeleteProgram(m_playerProgram);
@@ -166,12 +167,15 @@ void Window::onDestroy() {
   m_obstacle.destroy();
 }
 
+//Criação de obstáculos, a posição x é definida de forma aleatória em uma faixa de valores de -5 a 5
 void Window::createObstacle() {
   float x = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5 + 5)));
   m_gameData.m_obstaclesPositions.push_back(glm::vec3(x, -1.2f, -70.f));
   m_gameData.m_obstaclesCount++;
 }
 
+//Valida se houve colisão entre o player ou algum objeto, para isso percorremos o vetor de posição dos obstáculos e comparamos as respectivas posições x e z 
+//com as do player. Logo em seguida, incrementamos a quantidade de colisões e reiniciamos o timer da colisão, que será utilizado futuramente no método paint() para demonstrar que o player foi acertado
 void Window::checkCollision() {
   for (int i = 0; i < m_gameData.m_obstaclesCount; i++){
     glm::vec3 currentPosition = m_gameData.m_obstaclesPositions[i];
@@ -183,6 +187,7 @@ void Window::checkCollision() {
   }
 }
 
+//Valida a quantidade de colisões que o player sofreu, caso seja maior do que 2 então o estado do jogo será alterado para GameOver e sua posição resetada
 void Window::checkDeath() {
   if(m_gameData.m_hit > 2){
     m_gameData.m_state = State::GameOver;
