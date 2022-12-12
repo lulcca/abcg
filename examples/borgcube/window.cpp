@@ -4,16 +4,22 @@
 using std::string;
 
 void Window::onEvent(SDL_Event const &event) {
+  //Evento ao pressionar alguma tecla
   if (event.type == SDL_KEYDOWN) {
+    //Atribui a direção "left" para o player, será utilizada no método update para incrementar a posição para a esquerda
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Left));
+    //Atribui a direção "right" para o player, será utilizada no método update para incrementar a posição para a direita
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Right));
+    //Atribui a direção "up" para o player, será utilizada no método update para incrementar a posição para a frente
     if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Up));
+    //Atribui a direção "down" para o player, será utilizada no método update para incrementar a posição para trás
     if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Down));
   }
+  //Reseta a direção atribuida ao jogo após soltar a respectiva tecla
   if (event.type == SDL_KEYUP) {
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
       m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Left));
@@ -27,22 +33,27 @@ void Window::onEvent(SDL_Event const &event) {
 }
 
 void Window::onCreate() {
+  //Obtém o caminho do diretório Assets
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
 
+  //Carregamento da fonte
   auto const filename{m_assetsPath + "Inconsolata-Medium.ttf"};
   m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), 30.0f);
   if (m_font == nullptr) {
     throw abcg::RuntimeError{"Cannot load font file"};
   }
 
+  //Criação dos programas OpenGL utilizando os respectivos shaders
   m_program = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/main.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/main.frag", .stage = abcg::ShaderStage::Fragment}});
   m_playerProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obj.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obj.frag", .stage = abcg::ShaderStage::Fragment}});
   m_obstacleProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obj.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obj.frag", .stage = abcg::ShaderStage::Fragment}});
 
+  //Limpa a janela com a cor definida
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   
   abcg::glEnable(GL_DEPTH_TEST);
 
+  //Chamada dos métodos create() para que os programas OpenGL sejam utilizados nas respectivas classes
   m_player.create(m_playerProgram);
   m_obstacle.create(m_obstacleProgram);
 }
@@ -99,6 +110,8 @@ void Window::onPaint() {
   }
 }
 
+//Reseta as variáveis do jogo, nesse caso o número de obstáculos e colisões são definidos como 0, o estado do jogo é definido como "Playing", apagamos todos os obstáculos do vetor
+//e reiniciamos os timers
 void Window::restart() {
   m_gameData.m_hit = 0;
   m_gameData.m_obstaclesPositions.clear();
@@ -136,7 +149,8 @@ void Window::onPaintUI() {
     ImGui::SetNextWindowSize(size);
     ImGuiWindowFlags const flags{ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
     ImGui::PushFont(m_font);
-        
+    
+    //Caso o estado do jogo seja "GameOver" então renderizamos a mensagem na tela
     if(m_gameData.m_state == State::GameOver){
       string status = "GameOver";
 
@@ -153,6 +167,7 @@ void Window::onPaintUI() {
   }
 }
 
+//Atribui o valor na variável m_viewportSize de acordo com o tamanho da janela do programa e em seguida limpa o buffer
 void Window::onResize(glm::ivec2 const &size) {
   m_viewportSize = size;
   abcg::glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
