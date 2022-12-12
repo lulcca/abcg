@@ -29,7 +29,7 @@ void Player::paint(glm::vec3 scale, glm::vec3 rotation) {
   auto const projMatrixLoc{glGetUniformLocation(m_program, "view")};
   auto const modelMatrixLoc{glGetUniformLocation(m_program, "model")};
 
-  //Atribui nas 
+
   glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -104,7 +104,6 @@ void Player::destroy(){
   glDeleteVertexArrays(1, &m_VAO);
 }
 
-//trocar pra usar model
 void Player::setVAO() {
     //Vetor dos vértices que serão utilizados para criar um cubo
     float v[] = {
