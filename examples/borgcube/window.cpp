@@ -36,8 +36,8 @@ void Window::onCreate() {
   }
 
   m_program = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/main.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/main.frag", .stage = abcg::ShaderStage::Fragment}});
-  m_playerProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/player.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/player.frag", .stage = abcg::ShaderStage::Fragment}});
-  m_obstacleProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obstacles.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obstacles.frag", .stage = abcg::ShaderStage::Fragment}});
+  m_playerProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obj.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obj.frag", .stage = abcg::ShaderStage::Fragment}});
+  m_obstacleProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obj.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obj.frag", .stage = abcg::ShaderStage::Fragment}});
 
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   

@@ -26,7 +26,9 @@ private:
   unsigned int m_texture;
 
   void setVAO();
+
   void loadTexture();
+
   void setMovement(GameData m_gameData);
 };
 
