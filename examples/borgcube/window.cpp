@@ -14,6 +14,7 @@ void Window::onEvent(SDL_Event const &event) {
     if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
       m_gameData.m_direction.set(gsl::narrow<size_t>(Direction::Down));
   }
+
   if (event.type == SDL_KEYUP) {
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
       m_gameData.m_direction.reset(gsl::narrow<size_t>(Direction::Left));
@@ -40,7 +41,7 @@ void Window::onCreate() {
   m_obstacleProgram = abcg::createOpenGLProgram({{.source = m_assetsPath + "./shaders/obj.vert", .stage = abcg::ShaderStage::Vertex}, {.source = m_assetsPath + "./shaders/obj.frag", .stage = abcg::ShaderStage::Fragment}});
 
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
-  
+
   abcg::glEnable(GL_DEPTH_TEST);
 
   m_player.create(m_playerProgram);
@@ -48,51 +49,50 @@ void Window::onCreate() {
 }
 
 void Window::onPaint() {
+  //Comportamento quando está jogando
   if (m_gameData.m_state == State::Playing) {
-    
-    // interface update are based on time elapsed instead of hardware
+
+    //Interface é renderizada baseada em tempo ao invés do hardware, para minimizar a diferença entre dispositivos diferentes
     if (m_deltaTime.elapsed() < 0.01) {
       return;
     }
 
-    // restart timer when entered
+    //Reinicia o tempo ao entrar
     m_deltaTime.restart();
 
-      // clear window and set the viewport
+    //Limpa a janela e define os viewports
     glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
     abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
-    // paint player if its not colliding
+    //Utilizado para piscar o player, quando o tempo de colisão está no início, não printamos o player na tela em alguns intervalos
     if(
       (m_collisionTime.elapsed() >= 0.0 && m_collisionTime.elapsed() < 0.1) || 
       (m_collisionTime.elapsed() >= 0.2 && m_collisionTime.elapsed() < 0.3) ||
       (m_collisionTime.elapsed() >= 0.4 && m_collisionTime.elapsed() < 0.5)
-    ) {
-      // we do not do anything in this case
-    } else {
-
-      // we paint the player
+    ) {} else {
       m_player.paint(glm::vec3(0.8f), glm::vec3(0, 0, 0));  
     }
-    
-    // obstacle creation has its own timer, create obstacles every 1 seconds
+
+    //A criação dos obstáculos possui seu próprio timer, eles são criados a cada 1 segundo
     if (m_obstacleTime.elapsed() > 1) {
       createObstacle();
       m_obstacleTime.restart();
     }
 
-    //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
+    //Renderizacao de todos os obstaculos, sempre incrementando a pos z para avançar em direção ao player
     for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
       m_gameData.m_obstaclesPositions[i].z += 0.5;
       m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(1000 * m_gameTime.elapsed()));
     }
-  } else if (m_gameData.m_state == State::GameOver){
-    // clear window and set the viewport
+  } else if (m_gameData.m_state == State::GameOver) {
+
+    //Quando estamos no estado GameOver, não printamos o player nem os obstáculos
     glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
     abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
+    //Reinicie após 3 segundos
     if(m_deltaTime.elapsed() > 3){
       restart();
     }
