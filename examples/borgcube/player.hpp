@@ -17,8 +17,6 @@ public:
  
 private:
   GLuint m_VAO{};
-  GLuint m_VBOPositions{};
-  GLuint m_VBOColors{};
   
   GLuint m_program{};
   Camera m_camera;

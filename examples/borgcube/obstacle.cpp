@@ -62,8 +62,6 @@ void Obstacle::create(GLuint program) {
 //Liberação dos recursos alocados durante a aplicação
 void Obstacle::destroy(){
   glDeleteProgram(m_program);
-  glDeleteBuffers(1, &m_VBOPositions);
-  glDeleteBuffers(1, &m_VBOColors);
   glDeleteVertexArrays(1, &m_VAO);
 }
 
