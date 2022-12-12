@@ -132,7 +132,7 @@ void Player::setVAO() {
 void Player::loadTexture(){
   auto const m_assetsPath{abcg::Application::getAssetsPath()};
   
-  GLuint data = abcg::loadOpenGLTexture({.path = m_assetsPath + "./texture/wall.jpg"});
+  GLuint data = abcg::loadOpenGLTexture({.path = m_assetsPath + "./texture/cubo.jpg"});
   if(data){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

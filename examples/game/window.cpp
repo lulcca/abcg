@@ -43,14 +43,11 @@ void Window::onCreate() {
   glClearColor(17.0f/255.0f, 21.0f/255.0f, 28.0f/255.0f, 0);
   
   abcg::glEnable(GL_DEPTH_TEST);
-  
+  // abcg::glDisable(GL_PROGRAM_POINT_SIZE);
+
   m_starLayers.create(m_starsProgram, 25);
   m_player.create(m_playerProgram);
   m_obstacle.create(m_obstacleProgram);
-
-  #if !defined(__EMSCRIPTEN__)
-    abcg::glDisable(GL_PROGRAM_POINT_SIZE);
-  #endif
 }
 
 void Window::onPaint() {
@@ -92,7 +89,7 @@ void Window::onPaint() {
     //renderizacao dos obstaculos e incremento da pos z para avançar pro player  
     for(int i = 0; i < m_gameData.m_obstaclesCount; i++){
       m_gameData.m_obstaclesPositions[i].z += 0.5;
-      m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(0.f));
+      m_obstacle.paint(m_gameData.m_obstaclesPositions[i], glm::vec3(1.f), glm::vec3(1000 * m_gameTime.elapsed()));
     }
   } else if (m_gameData.m_state == State::GameOver){
     // clear window and set the viewport

@@ -23,24 +23,17 @@ private:
   Obstacle m_obstacle;
   StarLayers m_starLayers;
   GameData m_gameData;
-
-  float obstacleTime;
-  int m_obstacleCount{2};
   
   glm::ivec2 m_viewportSize{};
 
   ImFont *m_font{};
   
+  abcg::Timer m_gameTime;
   abcg::Timer m_deltaTime;
   abcg::Timer m_updateTime; 
   abcg::Timer m_obstacleTime;
   abcg::Timer m_starTime;
-
   abcg::Timer m_collisionTime;
-
-  GLuint m_VAO{};
-  GLuint m_VBOColors{};
-  GLuint m_VBOPositions{};
 
   GLuint m_program{};
   GLuint m_playerProgram{};
