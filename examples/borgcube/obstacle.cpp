@@ -6,6 +6,7 @@
 //Realiza a renderização do obstáculo na tela
 void Obstacle::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
 	
+  //Utiliza a posição da camera para a visualização do objeto renderizado e define a projeção da tela
   glm::mat4 projection = glm::perspective(glm::radians(45.f), 1280.f/720.f, 0.1f, 100.0f);
   glm::mat4 view = glm::translate(glm::mat4(1.0f), m_camera.pos);
   glm::mat4 model = glm::mat4(1.0f);
@@ -24,6 +25,8 @@ void Obstacle::paint(glm::vec3 pos, glm::vec3 scale, glm::vec3 rotation) {
 
   //Ativa os shaders 
   glUseProgram(m_program);
+
+  //Localização das variáveis e atribuição dos respectivos valores para proj, view e model, que serão utilizadas nos shaders
   auto const viewMatrixLoc{glGetUniformLocation(m_program, "proj")};
   auto const projMatrixLoc{glGetUniformLocation(m_program, "view")};
   auto const modelMatrixLoc{glGetUniformLocation(m_program, "model")};
