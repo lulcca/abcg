@@ -1,4 +1,4 @@
-<h1> EARTH MODEL </h1>
+<h1> BORG CUBE GAME </h1>
 
 <h3> Aline Conquista de Almeida Ferreira - 11201721585 </h3>
 <h3> Lucca Segantim Jacomassi - 11035516 </h3>
